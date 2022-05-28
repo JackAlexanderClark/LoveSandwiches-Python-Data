@@ -18,9 +18,25 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
-#Calling sales worksheet from our google spread sheet
+"""
+Checking our API works
+Calling sales worksheet from our google spread sheet. 
+Data variable to print sales data to the terminal using: python3 run.py
+"""
 sales = SHEET.worksheet('sales')
-
-#Creating data variable to print the sales data to the terminal using: python3 run.py command
 data = sales.get_all_values()
 print(data)
+
+
+def get_sales_data():
+    """
+    Get sales figures input from user
+    """
+    print("Please enter sales data from the last market.")
+    print("Data should be six numbers, seperated by commas, CSV format.")
+    print("Example: 10,20,30,40,50,60.")
+
+    data_str = input("Enter your data here: ")
+    print(f"The data provided is: {data_str}")
+
+get_sales_data()
