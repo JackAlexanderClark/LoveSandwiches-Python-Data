@@ -24,23 +24,32 @@ Calling sales worksheet from our google spread sheet
 Data variable to print sales data to the terminal using: python3 run.py
 """
 sales = SHEET.worksheet('sales')
-data = sales.get_all_values()
-print(data)
-
+sheet_data = sales.get_all_values()
+print(sheet_data)
 
 def get_sales_data():
     """
     Get sales figures input from user
+    User request loop
     """
-    print("Please enter sales data from the last market.")
-    print("Data should be six numbers, seperated by commas, CSV format.")
-    print("Example: 10,20,30,40,50,60.\n")
+    while True:
+        print("Please enter sales data from the last market.")
+        print("Data should be six numbers, seperated by commas, CSV format.")
+        print("Example: 10,20,30,40,50,60.\n")
 
-    data_string = input("Enter your data here: ")
+        data_string = input("Enter your data here: ")
 
-    #Converting string by split() method returns the broken up values as list
-    sales_data = data_string.split(",")
-    validate_data(sales_data)
+        #Converting string by split() method returns the broken up values as list
+        sales_data = data_string.split(",")
+        validate_data(sales_data)
+
+        #Validate_data(sales_data) is condition to break while loop
+        if validate_data(sales_data):
+            print("Yay! The data is correct! <3")
+            break
+
+    return sales_data
+
 
 def validate_data(values):
     """
@@ -49,13 +58,16 @@ def validate_data(values):
     or if there aren't exactly 6 values.
     """
     try:
+        [int(value) for value in values]
         if len(values) != 6:
             raise ValueError(f"We expected to receive 6 data values, you inputted {len(values)}")
     #as keyword assigns assigns the ValueError to e (shorthand error)
     except ValueError as e:
         print(f"Invalid data {e}, please try again.\n")
+        return False 
 
+    return True
 
-get_sales_data()
+data = get_sales_data()
 
 
