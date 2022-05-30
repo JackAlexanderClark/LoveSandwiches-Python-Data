@@ -71,15 +71,21 @@ def validate_data(values):
 
     return True
 
-def update_sales_worksheet(data):
+
+
+
+def update_worksheet(data, worksheet):
     """
-    Update sales worksheet, add new row with the list data provided.
+    Refactored function that can update both the sales and surplus worksheets.
+    Receives a list of integers to be inserted into a worksheet
+    Update the relevant worksheet with the data provided
     """
-    print("Updating sales worksheet.......\n")
-    sales_worksheet = SHEET.worksheet("sales")
-    #Adds new row to google worksheet with our updated data
-    sales_worksheet.append_row(data)
-    print("Worksheet successfully updated, well done!!! \n")
+    print(f"Updating {worksheet} worksheet... :D\n")
+    worksheet_to_update = SHEET.worksheet(worksheet)
+    worksheet_to_update.append_row(data)
+    print(f"{worksheet} worksheet updated succesfully!\n")
+
+
 
 def calculate_surplus_data(sales_row):
     """
@@ -104,6 +110,17 @@ def calculate_surplus_data(sales_row):
 
     return surplus_data
 
+def get_last_5_entries_data():
+    """
+    Collects columns of data from sales worksheet, collecting
+    the last 5 entries for each sandwich and returns the data
+    as a list of lists.
+    """
+    sales = SHEET.worksheet("sales")
+    #col.values provided by gspread to request 3rd column
+    column = sales.col_values(3)
+    print(column)
+
 def main():
     """
     Main function to run all program functions
@@ -111,11 +128,38 @@ def main():
     data = get_sales_data()
     print(data)
     sales_data = [int(num) for num in data]
-    update_sales_worksheet(sales_data)
+    update_worksheet(sales_data, "sales")
     new_surplus_data = calculate_surplus_data(sales_data)
-    print(new_surplus_data)
+    update_worksheet(new_surplus_data, "surplus")
 
 #Function calls must be below where a function is defined
 print("Welcome to Love SandWiches Data Automation :)")
 main()
 
+get_last_5_entries_data()
+
+
+
+"""
+def update_sales_worksheet(data):
+
+    Update sales worksheet, add new row with the list data provided
+
+    print("Updating sales worksheet...\n")
+    sales_worksheet = SHEET.worksheet("sales")
+    sales_worksheet.append_row(data)
+    print("Sales worksheet updated successfully.\n")
+
+
+def calculate_surplus_data(sales_row):
+    
+    Compare sales with stock and calculate the surplus for each item type.
+    The surplus is defined as the sales figure subtracted from the stock:
+    - Positive surplus indicates waste
+    - Negative surplus indicates extra made when stock was sold out.
+    
+    print("Calculating surplus data...\n")
+    stock = SHEET.worksheet("stock").get_all_values()
+    stock_row = stock[-1]
+    print(stock_row)
+"""
