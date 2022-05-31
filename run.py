@@ -13,7 +13,7 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
     ]
 
-#Every google account has an IAM (Identity Access Management)
+# Every google account has an IAM (Identity Access Management)
 CREDS = Credentials.from_service_account_file('credidentials.json')
 SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
@@ -40,11 +40,11 @@ def get_sales_data():
 
         data_string = input("Enter your data here: ")
 
-        #Converting string by split() method returns the broken up values as list
+        # Converting string by split() method returns the broken up values as list
         sales_data = data_string.split(",")
         validate_data(sales_data)
 
-        #Validate_data(sales_data) is condition to break while loop
+        # Validate_data(sales_data) is condition to break while loop
         if validate_data(sales_data):
             print("Yay! The data is correct! <3")
             break
@@ -60,11 +60,11 @@ def validate_data(values):
     by commas. The loop will repeatedly request data, until it is valid.
     """
     try:
-        #List comprehension
+        # List comprehension
         [int(value) for value in values]
         if len(values) != 6:
             raise ValueError(f"We expected to receive 6 data values, you inputted {len(values)}")
-    #'as' keyword assigns assigns the ValueError to e (shorthand error)
+    # 'as' keyword assigns assigns the ValueError to e (shorthand error)
     except ValueError as e:
         print(f"Invalid data {e}, please try again.\n")
         return False
@@ -101,7 +101,7 @@ def calculate_surplus_data(sales_row):
     stock = SHEET.worksheet('stock').get_all_values()
     stock_row = stock[-1]
     
-    #zip() method allows to lists to become a zip object
+    # zip() method allows to lists to become a zip object
     surplus_data = []
     for stock, sales in zip(stock_row, sales_row):
         surplus = int(stock) - sales
@@ -117,26 +117,59 @@ def get_last_5_entries_data():
     as a list of lists.
     """
     sales = SHEET.worksheet("sales")
-    #col.values provided by gspread to request 3rd column
-    column = sales.col_values(3)
-    print(column)
+    # col.values provided by gspread to request 3rd column
+    # column = sales.col_values(3)
+    # print(column)
+    
+    columns = []
+    for ind in range(1, 7):
+        column = sales.col_values(ind)
+        # Only want last 5 items of the list
+        columns.append(column[-5:])
+    pprint(columns)
+
+    return columns
+
+def calculate_stock_data(data):
+    """
+    Calculate the average stock for each item type, adding 10%
+    """
+    print("Calculating stock data...\n")
+    new_stock_data = []
+    
+    for column in data:
+        # List comprehension
+        # Using sum and len methods to calculate average 
+        # When a list length may vary
+        int_column = [int(num) for num in column]
+        average = sum(int_column) / len(int_column)
+        stock_num = average * 1.1
+        # Gets rid of floating point and rounds whole
+        new_stock_data.append(round(stock_num))
+
+    print(new_stock_data)
+    return new_stock_data
 
 def main():
     """
     Main function to run all program functions
     """
     data = get_sales_data()
-    print(data)
     sales_data = [int(num) for num in data]
     update_worksheet(sales_data, "sales")
     new_surplus_data = calculate_surplus_data(sales_data)
     update_worksheet(new_surplus_data, "surplus")
+    sales_columns = get_last_5_entries_sales()
+    stock_data = calculate_stock_data(sales_columns)
+    update_worksheet(stock_data, "stock")
 
-#Function calls must be below where a function is defined
+# Function calls must be below where a function is defined
 print("Welcome to Love SandWiches Data Automation :)")
 main()
 
-get_last_5_entries_data()
+sales_columns = get_last_5_entries_data()
+calculate_stock_data(sales_columns)
+
 
 
 
